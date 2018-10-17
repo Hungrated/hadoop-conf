@@ -37,15 +37,15 @@ ThinkPad E440 | Intel Core-i7 4712MQ CPU | 12GB |
 
 对每个系统：
 
-2.1.1 打开桌面上的Install to Hard Drive，用默认配置将系统文件安装到本地
+1 打开桌面上的Install to Hard Drive，用默认配置将系统文件安装到本地
 > 其中确认选项选择Yes，且将主机名设置为对应结点名称，随后选择Write changes to disk
     
-2.1.2 重启虚拟机，以root用户登录，做好用户相关配置，将Terminal放置在桌面上备用
+2 重启虚拟机，以root用户登录，做好用户相关配置，将Terminal放置在桌面上备用
 > 可将root密码设置为000000，普通用户用户名和密码分别设置为hadoop和0000
 
 #### 2.2 Hadoop基础环境安装
 
-对每个系统：
+对每个结点：
 ##### 2.2.1 安装JDK 1.8并设置环境变量（若本机已有Java环境则跳过）
 
 下载JDK包并传至虚拟机
@@ -107,6 +107,8 @@ ssh localhost                       # 验证免密登录
 
 下载Hadoop安装包并传至虚拟机
 http://mirror.bit.edu.cn/apache/hadoop/common/stable/hadoop-2.9.1.tar.gz
+
+以下操作对每个结点进行。
 
 ###### 2.2.3.1 创建hadoop用户并建立HDFS文件夹（若前面没有新建则用如下方法）
 
