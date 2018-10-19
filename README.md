@@ -103,14 +103,55 @@ ssh localhost                       # 验证免密登录
 
 ```
 
-##### 2.2.3 安装Hadoop并配置
+##### 2.2.3 检查并配置libc
+
+> Hadoop推荐的libc版本为2.14以上，若系统libc版本不符合要求，hadoop配置完成启动时会报`Unable to load native-hadoop library for your platform... using builtin-java classes where applicable`警告。
+
+```
+
+strings /lib64/libc.so.6 | grep GLIBC
+                                    # 检查libc版本，若最高在2.14以下则进行后续步骤
+
+```
+
+下载glibc-2.14安装包并移至虚拟机 http://ftp.gnu.org/gnu/glibc/glibc-2.14.tar.gz
+
+```
+
+yum install -y gcc                  # 若无C编译器则安装
+
+tar -zxvf glibc-2.14.tar.gz
+
+cd glibc-2.14
+
+mkdir build
+
+cd build
+
+../configure --prefix=/opt/glibc-2.14
+
+make && make install
+
+ln -s /opt/glibc-2.14/lib/libc-2.14.so  /lib64/libc.so.61
+
+mv /lib64/libc.so.61 /lib64/libc.so.6
+
+mv: overwrite `/lib64/libc.so.6'? yes
+
+strings /lib64/libc.so.6 | grep GLIBC
+                                    # 检查libc版本是否最高为2.14
+
+```
+
+
+##### 2.2.4 安装Hadoop并配置
 
 下载Hadoop安装包并传至虚拟机
 http://mirror.bit.edu.cn/apache/hadoop/common/stable/hadoop-2.9.1.tar.gz
 
 以下操作对每个结点进行。
 
-###### 2.2.3.1 创建hadoop用户并建立HDFS文件夹（若前面没有新建则用如下方法）
+###### 2.2.4.1 创建hadoop用户并建立HDFS文件夹（若前面没有新建则用如下方法）
 
 ```
 useradd -m hadoop -G root -s /bin/bash
@@ -137,7 +178,7 @@ mkdir tmp
 
 ```
 
-###### 2.2.3.2 安装Hadoop
+###### 2.2.4.2 安装Hadoop
 
 ```
 tar -zxvf hadoop-2.9.1.tar.gz
@@ -161,7 +202,7 @@ hadoop version                      # 验证Hadoop安装是否成功
 
 ```
 
-###### 2.2.3.3 配置Hadoop
+###### 2.2.4.3 配置Hadoop
 
 > 注意：所有主机的Hadoop配置必须相同，建议先配置hdp-master，然后将配置好的`$HADOOP_HOME/etc/hadoop`文件夹复制到其他虚拟机的相同位置（覆盖原文件）。
 
@@ -316,7 +357,9 @@ sbin/start-yarn.sh                  # 启动YARN
 
 jps                                 # 查看Java虚拟机进程，验证Hadoop是否启动成功
 
-sbin/stop-all.sh                    # 停止所有Hadoop进程（若需要）
+sbin/stop-yarn.sh                   # 停止所有Hadoop进程（若需要）
+
+sbin/stop-dfs.sh
 
 ```
 
