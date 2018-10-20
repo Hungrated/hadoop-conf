@@ -24,8 +24,6 @@ ThinkPad E440 | Intel Core-i7 4712MQ CPU | 12GB |
 * CentOS 6.5 x64 LiveDVD
 > 用binDVD或其他版本安装也可
 
-
-
 ### 2 Hadoop环境搭建
 
 #### 2.1 系统安装
@@ -37,15 +35,29 @@ ThinkPad E440 | Intel Core-i7 4712MQ CPU | 12GB |
 
 对每个系统：
 
-1 打开桌面上的Install to Hard Drive，用默认配置将系统文件安装到本地
+a) 打开桌面上的Install to Hard Drive，用默认配置将系统文件安装到本地
 > 其中确认选项选择Yes，且将主机名设置为对应结点名称，随后选择Write changes to disk
     
-2 重启虚拟机，以root用户登录，做好用户相关配置，将Terminal放置在桌面上备用
+b) 重启虚拟机，以root用户登录，做好用户相关配置，将Terminal放置在桌面上备用
 > 可将root密码设置为000000，普通用户用户名和密码分别设置为hadoop和0000
+
+c) 上述步骤完成后，首先将系统防火墙关闭（必要步骤）
+
+```
+
+service iptables stop               # 即时关闭防火墙（针对CentOS 7以下系统）
+
+chkconfig iptables off              # 永久关闭防火墙
+
+service iptables status             # 查看防火墙状态
+                                    # iptables: Firewall is not running.
+
+```
 
 #### 2.2 Hadoop基础环境安装
 
-对每个结点：
+* 以下操作对每个结点进行。
+
 ##### 2.2.1 安装JDK 1.8并设置环境变量（若本机已有Java环境则跳过）
 
 下载JDK包并传至虚拟机
@@ -149,7 +161,7 @@ strings /lib64/libc.so.6 | grep GLIBC
 下载Hadoop安装包并传至虚拟机
 http://mirror.bit.edu.cn/apache/hadoop/common/stable/hadoop-2.9.1.tar.gz
 
-以下操作对每个结点进行。
+* 以下操作对每个结点进行。
 
 ###### 2.2.4.1 创建hadoop用户并建立HDFS文件夹（若前面没有新建则用如下方法）
 
@@ -235,12 +247,12 @@ vi hdfs-site.xml
     <configuration>
  +      <property>
  +          <name>dfs.namenode.name.dir</name>
- +          <value>/home/hadoop/dfs/name</value>
+ +          <value>file:///home/hadoop/dfs/name</value>
  +      </property>
  +  
  +      <property>
  +          <name>dfs.datanode.data.dir</name>
- +          <value>/home/hadoop/dfs/data</value>
+ +          <value>file:///home/hadoop/dfs/data</value>
  +      </property>
  +  
  +      <property>
@@ -330,14 +342,14 @@ exit                                # 断开ssh连接
 
 cd ~/.ssh
 
-cat authorized_keys                  # 查看密钥
+cat authorized_keys                 # 查看密钥
 
 scp authorized_keys hdp-node-01:~/.ssh/
 scp authorized_keys hdp-node-02:~/.ssh/
 scp authorized_keys hdp-node-03:~/.ssh/
-                                     # 将完整的密钥文件传给各子结点
+                                    # 将完整的密钥文件传给各子结点
 
-ssh hdp-node-02                      # 测试网络互通
+ssh hdp-node-02                     # 测试网络互通
 
 ```
 
@@ -363,8 +375,9 @@ sbin/stop-dfs.sh
 
 ```
 
-> 若启动成功，则jps命令返回结果如下：
+> 可参照其他教程测试Hadoop与HDFS操作命令。
 
+若启动成功，则jps命令返回结果如下：
 
 |结点名称|hdp-master|hdp-node-01|hdp-node-02|hdp-node-03|
 |---|---|---|---|---|
